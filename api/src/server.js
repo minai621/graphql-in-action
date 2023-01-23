@@ -18,7 +18,26 @@ async function main() {
   server.use('/:fav.ico', (req, res) => res.sendStatus(204));
 
   // Example route
-  server.use('/', graphqlHTTP({ schema, context: { pgApi }, graphiql: true }));
+  server.use(
+    '/',
+    graphqlHTTP({
+      schema,
+      context: { pgApi },
+      graphiql: true,
+      customFormatErrorFn: (err) => {
+        const errorReport = {
+          message: err.message,
+          locations: err.locations,
+          stack: err.stack ? err.stack.split('\n') : [],
+          path: err.path,
+        };
+        console.error('GraphQL Error', errorReport);
+        return config.isDev
+          ? errorReport
+          : { message: 'Oops! Something went wrong! :(' };
+      },
+    })
+  );
 
   // This line rus the server
   server.listen(config.port, () => {

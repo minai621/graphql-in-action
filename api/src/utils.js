@@ -13,3 +13,14 @@ export const numbersInRangeObject = (begin, end) => {
   }
   return { sum, count };
 };
+
+export const extractPrefixedColumns = ({ prefixedObejct, prefix }) => {
+  const prefixRexp = new RegExp(`^${prefix}_(.*)`);
+  return Object.entries(prefixedObejct).reduce((acc, [key, value]) => {
+    const match = key.match(prefixRexp);
+    if (match) {
+      acc[match[1]] = value;
+    }
+    return acc;
+  }, {});
+};
