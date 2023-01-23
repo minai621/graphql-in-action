@@ -3,6 +3,7 @@ services:
   postgres:
     container_name: gia_pg
     image: agilelabs/gia-pg:main
+    restart: always
     expose:
       - 5432
     ports:
