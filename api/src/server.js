@@ -6,10 +6,10 @@ import morgan from 'morgan';
 import * as config from './config';
 import { graphqlHTTP } from 'express-graphql';
 import { schema } from './schema';
-import pgClient from './db/pg-client';
+import pgApiWrapper from './db/pg-api';
 
 async function main() {
-  const { pgPool } = await pgClient();
+  const pgApi = await pgApiWrapper();
   const server = express();
   server.use(cors());
   server.use(morgan('dev'));
@@ -18,7 +18,7 @@ async function main() {
   server.use('/:fav.ico', (req, res) => res.sendStatus(204));
 
   // Example route
-  server.use('/', graphqlHTTP({ schema, context: { pgPool }, graphiql: true }));
+  server.use('/', graphqlHTTP({ schema, context: { pgApi }, graphiql: true }));
 
   // This line rus the server
   server.listen(config.port, () => {
