@@ -5,7 +5,7 @@ import morgan from 'morgan';
 
 import * as config from './config';
 import { graphqlHTTP } from 'express-graphql';
-import { schema, rootValue } from './schema';
+import { schema } from './schema';
 
 async function main() {
   const server = express();
@@ -16,7 +16,7 @@ async function main() {
   server.use('/:fav.ico', (req, res) => res.sendStatus(204));
 
   // Example route
-  server.use('/', graphqlHTTP({ schema, rootValue, graphiql: true }));
+  server.use('/', graphqlHTTP({ schema, graphiql: true }));
 
   // This line rus the server
   server.listen(config.port, () => {

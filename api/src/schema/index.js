@@ -6,6 +6,8 @@ import {
   GraphQLInt,
   GraphQLNonNull,
 } from 'graphql';
+import NumbersInRange from './types/numbers-in-range';
+import { numbersInRangeObject } from '../utils';
 
 const QueryType = new GraphQLObjectType({
   name: 'Query',
@@ -17,9 +19,19 @@ const QueryType = new GraphQLObjectType({
         return isoString.slice(11, 19);
       },
     },
+    numbersInRange: {
+      type: NumbersInRange,
+      args: {
+        begin: { type: new GraphQLNonNull(GraphQLInt) },
+        end: { type: new GraphQLNonNull(GraphQLInt) },
+      },
+      resolve: function (source, { begin, end }) {
+        return numbersInRangeObject(begin, end);
+      },
+    },
   },
 });
 
-const schema = new GraphQLSchema({
+export const schema = new GraphQLSchema({
   query: QueryType,
 });
