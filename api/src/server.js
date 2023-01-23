@@ -1,13 +1,11 @@
-/** GIA NOTES
- *
- * Use the code below to start a bare-bone express web server
-
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import morgan from 'morgan';
 
 import * as config from './config';
+import { graphqlHTTP } from 'express-graphql';
+import { schema, rootValue } from './schema';
 
 async function main() {
   const server = express();
@@ -18,9 +16,7 @@ async function main() {
   server.use('/:fav.ico', (req, res) => res.sendStatus(204));
 
   // Example route
-  server.use('/', (req, res) => {
-    res.send('Hello World');
-  });
+  server.use('/', graphqlHTTP({ schema, rootValue, graphiql: true }));
 
   // This line rus the server
   server.listen(config.port, () => {
@@ -29,5 +25,3 @@ async function main() {
 }
 
 main();
-
-*/
