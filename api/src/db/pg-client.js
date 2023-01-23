@@ -1,10 +1,12 @@
 import pg from 'pg';
 
-import { pgConnectionString } from '../config';
-
 export default async function pgClient() {
   const pgPool = new pg.Pool({
-    connectionString: pgConnectionString,
+    host: 'localhost',
+    user: 'postgres',
+    password: 'password',
+    database: 'azdev',
+    port: 5432,
   });
 
   // Test the connection
