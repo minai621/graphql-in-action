@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import { useStore } from '../store';
 import Search from './Search';
-import TaskSummary from './TaskSummary';
+import TaskSummary, { TASK_SUMMARY_FRAGMENT } from './TaskSummary';
 
 /** GIA NOTES
  * Define GraphQL operations here...
@@ -33,7 +33,20 @@ export default function Home() {
   const { request } = useStore();
   const [taskList, setTaskList] = useState(null);
 
+  const TASK_MAIN_LIST = `
+  query taskMainList {
+    taskMainList {
+      id
+      ...TaskSummary
+    }
+  }
+  ${TASK_SUMMARY_FRAGMENT}
+`;
   useEffect(() => {
+    console.log('request');
+    request(TASK_MAIN_LIST).then(({ data }) => {
+      setTaskList(data.taskMainList);
+    });
     /** GIA NOTES
      *
      *  1) Invoke the query to get list of latest Tasks
@@ -47,7 +60,7 @@ export default function Home() {
   }, [request]);
 
   if (!taskList) {
-    return <div className="loading">Loading...</div>;
+    return <div className='loading'>Loading...</div>;
   }
 
   return (

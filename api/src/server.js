@@ -12,12 +12,17 @@ import pgApiWrapper from './db/pg-api';
 import mongoApiWrapper from './db/mongo-api';
 
 import DataLoader from 'dataloader';
-
+// const origin =
+//   'https://minai621-reimagined-space-trout-599r49qrv9wh7wj5-1234.preview.app.github.dev/';
 async function main() {
   const pgApi = await pgApiWrapper();
   const mongoApi = await mongoApiWrapper();
   const server = express();
-  server.use(cors());
+  server.use(
+    cors({
+      origin: true,
+    })
+  );
   server.use(morgan('dev'));
   server.use(bodyParser.urlencoded({ extended: false }));
   server.use(bodyParser.json());
