@@ -125,6 +125,78 @@ const pgApiWrapper = async () => {
         }
         return payload;
       },
+      taskCreate: async ({ input, currentUser }) => {
+        const payload = { errors: [] };
+        if (input.content.length < 15) {
+          payload.errors.push({
+            message: 'Text is too short',
+          });
+        }
+        if (payload.errors.length === 0) {
+          const pgResp = await pgQuery(sqls.taskInsert, {
+            $1: currentUser.id,
+            $2: input.content,
+            $3: input.tags.join(','),
+            $4: input.isPrivate,
+          });
+
+          if (pgResp.rows[0]) {
+            payload.task = pgResp.rows[0];
+          }
+        }
+
+        return payload;
+      },
+      approachCreate: async ({ taskId, input, currentUser, mutators }) => {
+        const payload = { errors: [] };
+        if (payload.errors.length === 0) {
+          const pgResp = await pgQuery(sqls.approachInsert, {
+            $1: currentUser.id,
+            $2: input.content,
+            $3: taskId,
+          });
+          if (pgResp.rows[0]) {
+            payload.approach = pgResp.rows[0];
+            await pgQuery(sqls.approachCountIncrement, {
+              $1: taskId,
+            });
+            await mutators.approachDetailCreate(
+              payload.approach.id,
+              input.detailList
+            );
+          }
+        }
+
+        return payload;
+      },
+      approachVote: async ({ approachId, input }) => {
+        const payload = { errors: [] };
+        const pgResp = await pgQuery(sqls.approachVote, {
+          $1: approachId,
+          $2: input.up ? 1 : -1,
+        });
+
+        if (pgResp.rows[0]) {
+          payload.approach = pgResp.rows[0];
+        }
+
+        return payload;
+      },
+      userDelete: async ({ currentUser }) => {
+        const payload = { errors: [] };
+        try {
+          await pgQuery(sqls.userDelete, {
+            $1: currentUser.id,
+          });
+          payload.deletedUserId = currentUser.id;
+        } catch (err) {
+          payload.errors.push({
+            message: 'We were not able to delete this account',
+          });
+        }
+
+        return payload;
+      },
     },
   };
 };
