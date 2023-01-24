@@ -12,6 +12,7 @@ import pgApiWrapper from './db/pg-api';
 import mongoApiWrapper from './db/mongo-api';
 
 import DataLoader from 'dataloader';
+import { ApolloServer } from 'apollo-server';
 // const origin =
 //   'https://minai621-reimagined-space-trout-599r49qrv9wh7wj5-1234.preview.app.github.dev/';
 async function main() {
@@ -79,6 +80,11 @@ async function main() {
 
   server.listen(config.port, () => {
     console.log(`Server URL: http://localhost:${config.port}/`);
+  });
+
+  const serverWS = new ApolloServer({ schema });
+  serverWS.listen({ port: 4000 }).then(({ subscriptionsUrl }) => {
+    console.log(`Subscriptions URL: ${subscriptionsUrl}`);
   });
 }
 
