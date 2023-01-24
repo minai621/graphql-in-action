@@ -4,37 +4,25 @@ import {
   GraphQLString,
   GraphQLInt,
   GraphQLNonNull,
-  GraphQLList,
 } from 'graphql';
 
 import User from './user';
-import Approach from './approach';
 
-const Task = new GraphQLObjectType({
-  name: 'Task',
+const Approach = new GraphQLObjectType({
+  name: 'Approach',
   fields: {
     id: { type: new GraphQLNonNull(GraphQLID) },
     content: { type: new GraphQLNonNull(GraphQLString) },
-    tags: {
-      type: new GraphQLNonNull(
-        new GraphQLList(new GraphQLNonNull(GraphQLString))
-      ),
-      resolve: (source) => source.tags.split(','),
-    },
-    approachCount: { type: new GraphQLNonNull(GraphQLInt) },
+    voteCount: { type: new GraphQLNonNull(GraphQLInt) },
     createdAt: {
       type: new GraphQLNonNull(GraphQLString),
-      resolve: (source) => source.createdAt.toISOString(),
+      resolve: ({ createdAt }) => createdAt.toISOString(),
     },
     author: {
       type: new GraphQLNonNull(User),
-      resolve: (source, args, { pgApi }) => pgApi.userInfo(source.userId),
-    },
-    approachList: {
-      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(Approach))),
-      resolve: (source, args, { pgApi }) => pgApi.approachList(source.id),
+      resolve: (source, args, { loaders }) => loaders.users.load(source.userId),
     },
   },
 });
 
-export default Task;
+export default Approach;
