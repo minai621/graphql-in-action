@@ -7,10 +7,11 @@ import {
 } from 'graphql';
 
 import User from './user';
+import Task from './task';
 
 const Approach = new GraphQLObjectType({
   name: 'Approach',
-  fields: {
+  fields: () => ({
     id: { type: new GraphQLNonNull(GraphQLID) },
     content: { type: new GraphQLNonNull(GraphQLString) },
     voteCount: { type: new GraphQLNonNull(GraphQLInt) },
@@ -20,9 +21,13 @@ const Approach = new GraphQLObjectType({
     },
     author: {
       type: new GraphQLNonNull(User),
-      resolve: (source, args, { loaders }) => loaders.userInfo(source.userId),
+      resolve: (source, args, { loaders }) => loaders.users.load(source.userId),
     },
-  },
+    task: {
+      type: new GraphQLNonNull(Task),
+      resolve: (source, args, { loaders }) => loaders.task.load(source.taskId),
+    },
+  }),
 });
 
 export default Approach;
