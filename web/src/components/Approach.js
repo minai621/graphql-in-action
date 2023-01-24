@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { gql, useMutation } from '@apollo/client';
 
-import { useStore } from '../store';
 import Errors from './Errors';
 
 export const APPROACH_FRAGMENT = `
@@ -17,7 +17,7 @@ export const APPROACH_FRAGMENT = `
   }
 `;
 
-const APPROACH_VOTE = `
+const APPROACH_VOTE = gql`
   mutation approachVote($approachId: ID!, $up: Boolean!) {
     approachVote(approachId: $approachId, input: { up: $up }) {
       errors {
@@ -32,13 +32,16 @@ const APPROACH_VOTE = `
 `;
 
 export default function Approach({ approach, isHighlighted }) {
-  const { request } = useStore();
-  const [uiErrors, setUIErrors] = useState();
-  const [voteCount, setVoteCount] = useState(approach.voteCount);
+  const [uiErrors, setUIErrors] = useState([]);
+  const [submitVote, { error, loading }] = useMutation(APPROACH_VOTE);
+
+  if (error) {
+    return <div className='error'>{error.message}</div>;
+  }
 
   const handleVote = (direction) => async (event) => {
     event.preventDefault();
-    const { data, errors: rootErrors } = await request(APPROACH_VOTE, {
+    const { data, errors: rootErrors } = await submitVote({
       variables: {
         approachId: approach.id,
         up: direction === 'UP',
@@ -47,15 +50,18 @@ export default function Approach({ approach, isHighlighted }) {
     if (rootErrors) {
       return setUIErrors(rootErrors);
     }
-    const { errors, updatedApproach } = data.approachVote;
+    const { errors } = data.approachVote;
     if (errors.length > 0) {
       return setUIErrors(errors);
     }
-    setVoteCount(updatedApproach.voteCount);
   };
 
   const renderVoteButton = (direction) => (
-    <button className='border-none' onClick={handleVote(direction)}>
+    <button
+      className='border-none'
+      onClick={handleVote(direction)}
+      disabled={loading}
+    >
       <svg
         aria-hidden='true'
         width='24'
@@ -77,7 +83,7 @@ export default function Approach({ approach, isHighlighted }) {
       <div className='approach'>
         <div className='vote'>
           {renderVoteButton('UP')}
-          {voteCount}
+          {approach.voteCount}
           {renderVoteButton('DOWN')}
         </div>
         <div className='main'>
