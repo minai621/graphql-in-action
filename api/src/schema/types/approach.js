@@ -8,9 +8,11 @@ import {
 
 import User from './user';
 import Task from './task';
+import SearchResultItem from './search-result-item';
 
 const Approach = new GraphQLObjectType({
   name: 'Approach',
+  interfaces: () => [SearchResultItem],
   fields: () => ({
     id: { type: new GraphQLNonNull(GraphQLID) },
     content: { type: new GraphQLNonNull(GraphQLString) },
@@ -25,7 +27,7 @@ const Approach = new GraphQLObjectType({
     },
     task: {
       type: new GraphQLNonNull(Task),
-      resolve: (source, args, { loaders }) => loaders.task.load(source.taskId),
+      resolve: (source, args, { loaders }) => loaders.tasks.load(source.taskId),
     },
   }),
 });
